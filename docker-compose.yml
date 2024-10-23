@@ -1,0 +1,34 @@
+version: '3'  # Docker Compose versiyonu, burada 3.0 kullanıyoruz
+services:  # Projeye dahil olan servisler
+  gitlab:  # GitLab servisi için yapılandırmalar
+    image: gitlab/gitlab-ce:latest  # GitLab Community Edition imajını kullanıyoruz
+    container_name: gitlab  # Konteynerin ismini belirtiyoruz
+    restart: always  # Konteyner kapandığında otomatik olarak tekrar başlasın
+    hostname: gitlab.local  # GitLab'ın lokal adresini belirliyoruz
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |  # GitLab konfigürasyonları burada
+        external_url 'http://gitlab.local'  # GitLab'ın çalışacağı URL
+    ports:
+      - "80:80"  # Web tarayıcıdan erişim için 80 numaralı portu haritalıyoruz
+      - "443:443"  # HTTPS için 443 numaralı portu haritalıyoruz
+      - "22:22"  # SSH ile bağlanmak için 22 numaralı portu açıyoruz
+    volumes:  # Veri depolamak için volümler oluşturuyoruz (kalıcı veri için)
+      - gitlab_config:/etc/gitlab
+      - gitlab_logs:/var/log/gitlab
+      - gitlab_data:/var/opt/gitlab
+
+  jenkins:  # Jenkins servisi için yapılandırmalar
+    image: jenkins/jenkins:lts  # Jenkins'in Long-Term-Support sürümünü kullanıyoruz
+    container_name: jenkins  # Konteynerin ismi jenkins
+    restart: always  # Jenkins konteyneri kapansa bile otomatik başlasın
+    ports:
+      - "8080:8080"  # Jenkins web arayüzü için 8080 numaralı portu açıyoruz
+      - "50000:50000"  # Jenkins için default bağlantı portu
+    volumes:  # Jenkins verilerini kalıcı hale getirmek için volume kullanıyoruz
+      - jenkins_home:/var/jenkins_home
+
+volumes:
+  gitlab_config:  # GitLab konfigürasyon verilerinin saklanacağı alan
+  gitlab_logs:  # GitLab loglarının saklanacağı alan
+  gitlab_data:  # GitLab proje dosyalarının saklanacağı alan
+  jenkins_home:  # Jenkins verilerinin saklanacağı alan
